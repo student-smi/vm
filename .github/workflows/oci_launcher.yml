@@ -37,3 +37,20 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           python oci_vm_launcher.py
+
+      - name: Upload VM Credentials (If Created)
+        if: always()
+        run: |
+          if [ -f instance_created.txt ]; then
+            echo "INSTANCE_CREATED=true" >> $GITHUB_ENV
+          fi
+
+      - name: Save VM Access Key and Details
+        if: env.INSTANCE_CREATED == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: oci-vm-credentials
+          path: |
+            instance_created.txt
+            oci_vm_key
+          retention-days: 14
