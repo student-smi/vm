@@ -1,0 +1,39 @@
+name: OCI 12GB Mumbai VM Auto-Launcher
+
+on:
+  schedule:
+    # Runs every 30 minutes automatically 24/7
+    - cron: '*/30 * * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  launch-vm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run OCI Launcher
+        env:
+          OCI_USER: ${{ secrets.OCI_USER }}
+          OCI_FINGERPRINT: ${{ secrets.OCI_FINGERPRINT }}
+          OCI_TENANCY: ${{ secrets.OCI_TENANCY }}
+          OCI_REGION: ap-mumbai-1
+          OCI_KEY_CONTENT: ${{ secrets.OCI_KEY_CONTENT }}
+          MAX_RUN_MINUTES: 28
+          RETRY_INTERVAL: 60
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python oci_vm_launcher.py

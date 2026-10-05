@@ -1,0 +1,7 @@
+*.pem
+*.key
+oci_vm_key*
+oci_config.ini
+instance_created.txt
+__pycache__/
+*.log
