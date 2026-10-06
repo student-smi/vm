@@ -1,8 +1,10 @@
 name: OCI 12GB Mumbai VM Auto-Launcher
 
 on:
+  push:
+    branches: [ main ]
   schedule:
-    # Runs every 30 minutes automatically 24/7
+    # Runs automatically 24/7
     - cron: '*/30 * * * *'
   workflow_dispatch: # Allows manual trigger from GitHub UI
 
