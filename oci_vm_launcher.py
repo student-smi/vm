@@ -49,7 +49,7 @@ OS_PREFERENCE = "Ubuntu"  # "Ubuntu" or "Oracle-Linux"
 # Run limit in minutes (useful for GitHub Actions to prevent sudden runner kills)
 MAX_RUN_MINUTES = int(os.environ.get("MAX_RUN_MINUTES", "0"))  # 0 means infinite loop
 
-# Multi-Tier Fallback Candidates (Ranked from Best Specs to Minimum Free Tier)
+# Multi-Tier Fallback Candidates (All ARM Ampere Always Free)
 CANDIDATE_CONFIGS = [
     {
         "name": "ARM-12GB (2 OCPU / 12 GB RAM)",
@@ -90,14 +90,6 @@ CANDIDATE_CONFIGS = [
         "memory_in_gbs": 2,
         "is_flex": True,
         "arch": "aarch64",
-    },
-    {
-        "name": "AMD-Micro-1GB (1 OCPU / 1 GB RAM - Always Free)",
-        "shape": "VM.Standard.E2.1.Micro",
-        "ocpus": 1,
-        "memory_in_gbs": 1,
-        "is_flex": False,
-        "arch": "x86_64",
     },
 ]
 
@@ -494,8 +486,14 @@ SSH Private Key Path: {os.path.abspath(SSH_KEY_NAME)}
                 return
 
             except oci.exceptions.ServiceError as e:
-                if "Out of host capacity" in str(e.message) or e.status == 500:
-                    print("❌ Out of capacity.", flush=True)
+                is_capacity_issue = (
+                    "Out of host capacity" in str(e.message)
+                    or "Invalid ratio of memory" in str(e.message)
+                    or "Valid ratio range: 0 - 0" in str(e.message)
+                    or e.status == 500
+                )
+                if is_capacity_issue:
+                    print("⏳ Capacity currently full in Mumbai.", flush=True)
                 elif e.status == 429:
                     print("⚠️ Rate limit (429).", flush=True)
                     time.sleep(15)
