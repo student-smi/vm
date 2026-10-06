@@ -6,9 +6,14 @@ on:
     - cron: '*/30 * * * *'
   workflow_dispatch: # Allows manual trigger from GitHub UI
 
+concurrency:
+  group: oci-vm-launcher
+  cancel-in-progress: false
+
 jobs:
   launch-vm:
     runs-on: ubuntu-latest
+    timeout-minutes: 350
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -31,7 +36,7 @@ jobs:
           OCI_TENANCY: ${{ secrets.OCI_TENANCY }}
           OCI_REGION: ap-mumbai-1
           OCI_KEY_CONTENT: ${{ secrets.OCI_KEY_CONTENT }}
-          MAX_RUN_MINUTES: 28
+          MAX_RUN_MINUTES: 330
           RETRY_INTERVAL: 60
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
